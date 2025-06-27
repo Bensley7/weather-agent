@@ -1,0 +1,71 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.log
+*.sqlite3
+*.env
+.env.*
+.envrc
+venv/
+.envrc
+*.db
+*.egg-info/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Jupyter / IPython
+.ipynb_checkpoints/
+*.ipynb
+
+# OS
+.DS_Store
+Thumbs.db
+
+# mypy / pytest / coverage
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+.cache/
+
+# Build
+build/
+dist/
+*.egg
+*.whl
+
+# LangChain / LangGraph
+storage/
+.trace/
+.graph/
+
+# Environments
+.env
+.env.local
+.env.development
+.env.production
+openai_key.txt
+openai.log
+
+# Node/npm (if using frontend)
+node_modules/
+*.lock
+pnpm-lock.yaml
+yarn.lock
+
+# Local data
+data/
+*.jsonl
+*.parquet
+*.csv
+
+# Output or temporary folders
+outputs/
+temp/
+tmp/
+
