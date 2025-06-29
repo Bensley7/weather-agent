@@ -5,12 +5,17 @@ from typing import List
 import json
 import re
 from datetime import datetime
- 
+from typing import List, Optional
+
+
 class PlannerOutput(BaseModel):
     location: str
     date_raw: str
     dates: List[str]
     intent: str
+    reasoning_type: str
+    activity: Optional[str] = None
+    constraints: Optional[List[str]] = None
 
 def planner_node(llm):
     def planner_fn(state):
@@ -33,6 +38,21 @@ def planner_node(llm):
             - "temperature_check" — si on demande s’il fait chaud, froid, etc.
             - "activity_feasibility" — si on parle de randonnée, voyage, promenade, etc.
             - "generic_forecast" — pour une demande météo générale
+            - ou autre si nécessaire (à toi de figurer l'intitulé de l'intent)
+
+            - "reasoning_type" : type de raisonnement requis pour comprendre ou répondre, choisir parmi :
+                - "none"
+                - "temporal_reasoning"
+                - "numerical_reasoning"
+                - "geographical_reasoning"
+                - "constraint_reasoning"
+                - ou autre si nécessaire (à toi de figurer l'intitulé du reasoning_type)
+
+            Champs optionnels à inclure **si pertinents** :
+
+            - "activity" : texte libre décrivant l’activité que l'utilisateur souhaite planifier (ex : "aller à la plage", "faire un pique-nique ou une rando")
+            - "constraints" : liste de contraintes exprimées ou implicites liées à la météo ou à l'activité (ex : ["éviter la pluie", "chercher le jour le plus chaud"])
+
 
             Important :
             - Si une expression temporelle couvre plusieurs jours (comme "ce week-end", "toute la semaine", "this week" -> la semaine où figure aujorud'hui), retourne **une liste de dates précises** dans `"dates"`.
@@ -51,6 +71,31 @@ def planner_node(llm):
         except Exception:
             return {"error": True, "message": "LLM did not return valid JSON"}
 
-        return {"plannification" : [PlannerOutput(location=entry["location"], date_raw=entry["date_raw"], dates=entry["dates"], intent=entry['intent']).dict() for entry in response_json]}
+        return {
+            "plannification": [
+                {
+                    "location": entry["location"],
+                    "date_raw": entry["date_raw"],
+                    "dates": entry["dates"],
+                    "intent": entry["intent"],
+                    "reasoning_type": entry["reasoning_type"],
+                    **({"activity": entry["activity"]} if "activity" in entry else {}),
+                    **({"constraints": entry["constraints"]} if "constraints" in entry else {})
+                }
+                for entry in response_json
+            ]
+        }
 
     return planner_fn
+
+
+def parse_query(query: str, llm) -> list[PlannerOutput]:
+    planner = planner_node(llm)
+    state = {"messages": query}
+    result = planner(state)
+
+    if "error" in result:
+        print(" Erreur planner:", result["message"])
+        return []
+
+    return [PlannerOutput(**entry) for entry in result["plannification"]]

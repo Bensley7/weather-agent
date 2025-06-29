@@ -15,11 +15,7 @@ class Forecast(BaseModel):
     temp_mins: list[float]
     temp_maxs: list[float]
     temperatures: list[float]
-    intent: str
 
-load_dotenv()
-
-#WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 WEATHER_API_KEY = "33b15628c3774643b7b233910252405"
 WEATHER_API_KEY_0 = "6539e567b4bf46c98eb173830252306"
 DB_PATH = "weather_cache.db"
@@ -61,12 +57,14 @@ def weather_node():
         locations = [k.get("location")for k in state.get("plannification", [])]
         dates = [k.get("dates")for k in state.get("plannification", [])]
         intents = [k.get("intent")for k in state.get("plannification", [])]
+        reasoning_types = [k.get("reasoning_type")for k in state.get("plannification", [])]
+        activity = [k.get("activity")for k in state.get("plannification", [])]
+        constraints = [k.get("constraints")for k in state.get("plannification", [])]
 
         results = []
+
         for idx in range(len(locations)) :
-            intent = intents[idx]
             location = locations[idx]
-            intent = intents[idx]
             conditions = []
             rain_probs = []
             temp_mins = []
@@ -152,9 +150,32 @@ def weather_node():
                 temp_mins=temp_mins,
                 temp_maxs=temp_maxs,
                 temperatures=temperatures,
-                intent=intent,
             ))
 
         return {"forecasts": [r.dict() for r in results]}
 
     return weather_fn
+
+
+def get_forecast(location: str, dates: List[str]) -> Forecast:
+    """
+    Interface simplifiée pour appeler le weather_node() sur un seul lieu + liste de dates.
+    Utile pour tester en dehors du LangGraph.
+    """
+    state = {
+        "plannification": [{
+            "location": location,
+            "dates": dates,
+            "intent": "generic_forecast",
+            "reasoning_type": "none"
+        }]
+    }
+
+    weather_fn = weather_node()
+    result = weather_fn(state)
+    
+    forecasts = result.get("forecasts", [])
+    if not forecasts:
+        raise ValueError(f"No forecast generated for {location}")
+
+    return Forecast(**forecasts[0])
