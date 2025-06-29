@@ -2,52 +2,59 @@ from pydantic import BaseModel
 from typing import List
 from langchain.schema import HumanMessage
 import json
+import re
 
 class CityAdvice(BaseModel):
     dates: List[str]
     location: str
-    summaries: list[str]
-    actions: List[str]
-    reasons: List[str]
+    summaries: str
+    actions: str
+    reasons: str
 
-class ReasoningResult(BaseModel):
-    advisories: List[CityAdvice]
 
 def reasoner_node(llm):
     def reasoner_fn(state):
-        forecasts = state.get("forecasts", [])
+        forecasts: List[dict] = state.get("forecasts", [])
+        plans: List[dict] = state.get("plannification", [])
+
         prompt = f"""
-            You are a weather reasoning assistant.
+        You are a weather reasoning assistant.
 
-            Here is the list of cities with their corresponding forecasts weather at specific dates :
-            {json.dumps(forecasts, indent=2)}
+        The user has made the following queries and intentions:
+        {json.dumps(plans, indent=2)}
 
-            The user asked a weather-related question with some intent described above.
+        You also have the following weather forecasts:
+        {json.dumps(forecasts, indent=2)}
 
-            For each city , provide:
-            - summaries: List of  intents  value coming from the city forecasts. Each element of the list corresponds to a date.
-            - actions: List of what to do depending on the intent . Each element of the list corresponds to a date.
-            - reasons: List explain why based on forecast. Each element of the list corresponds to a date
+        For each city, and for the dates mentioned in both the planner and forecast:
+        - Use the intent, activity and constraints to guide your reasoning.
+        - Provide a high-level summary of the weather.
+        - Suggest appropriate actions.
+        - Explain why with evidence from the forecast.
 
-            Return a JSON list like:
-            [
+        Output a JSON list in this format:
+        [
             {{
                 "location": "Paris",
                 "dates": ["2025-06-24"],
-                "summaries": ["It will rain heavily / It is 20C"],
-                "actions": ["bring_umbrella" / "manteau" / eat ice cream etc.."],
-                "reasons": ["High chance of rain in forecast."]
+                "summaries": "It will rain heavily and the max temperature is 20°C.",
+                "actions": "Bring an umbrella and a warm coat.",
+                "reasons": "80% chance of rain and max temp of 20°C according to forecast."
             }}
-            ]
+        ]
         """
 
         response = llm.invoke([HumanMessage(content=prompt)]).content
+        cleaned_response = re.sub(r"^```(?:json)?\s*|\s*```$", "", response.strip(), flags=re.MULTILINE)
+
         try:
-            data = json.loads(response)
+            data = json.loads(cleaned_response)
             advisories = [CityAdvice(**entry) for entry in data]
         except Exception as e:
             return {"error": True, "message": f"Failed to parse LLM reasoning: {e}"}
 
-        return ReasoningResult(advisories=advisories).dict()
+        return {
+            "reasoning_result": [advisory.dict() for advisory in advisories]
+        }
 
     return reasoner_fn
