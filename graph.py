@@ -12,14 +12,13 @@ class WeatherAgentState(TypedDict, total=False):
     messages: str
     plannification: list
     forecasts: list
-    advisories: list
-    final_answer: str
+    reasoning_result: list
     ai_writer_result: str
     error: bool
 
 llm = ChatOpenAI(model="gpt-4o", temperature=0.3)
 
-def run_weather_agent(user_input):
+def build_weather_graph():
     builder = StateGraph(state_schema=WeatherAgentState)
 
     builder.add_node("planner", planner_node(llm))
@@ -36,6 +35,14 @@ def run_weather_agent(user_input):
     builder.set_finish_point("rewriter")
 
     app = builder.compile()
+
+    return app
+
+
+def run_weather_agent_quick(user_input):
+    app = build_weather_graph()
+    inputs = {"messages": user_input}
+    output = app.invoke(inputs)
     inputs = {"messages": user_input}
     final_output = app.invoke(inputs)
 
