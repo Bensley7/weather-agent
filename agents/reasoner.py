@@ -19,7 +19,7 @@ def reasoner_node(llm):
         prompt = f"""
             You are a weather reasoning assistant.
 
-            Here is the list of cities with their corresponding forecasts weather at specific dates and intents :
+            Here is the list of cities with their corresponding forecasts weather at specific dates :
             {json.dumps(forecasts, indent=2)}
 
             The user asked a weather-related question with some intent described above.
@@ -45,7 +45,6 @@ def reasoner_node(llm):
         try:
             data = json.loads(response)
             advisories = [CityAdvice(**entry) for entry in data]
-            print(advisories)
         except Exception as e:
             return {"error": True, "message": f"Failed to parse LLM reasoning: {e}"}
 
