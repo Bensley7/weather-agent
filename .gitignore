@@ -15,6 +15,9 @@ venv/
 *.db
 *.egg-info/
 
+__pycache__/
+*.py[cod]
+
 # VS Code
 .vscode/
 *.code-workspace
