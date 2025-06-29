@@ -4,12 +4,14 @@ from langchain.schema import HumanMessage
 def rewriter_node(llm):
     def rewriter_fn(state):
         advisories = state.get("reasoning_result", [])
-        print(advisories)
         dates_raw = [k.get("date_raw")for k in state.get("plannification", [])]
-        input_summary = "\n".join([
-            f"At {dates_raw[idx]} corresponding {a['dates']} and {a['location']}: {a['summaries']} (Action: {a['actions']}, Reason: {a['reasons']})"
-            for idx, a in enumerate(advisories)
-        ])
+        try:
+            input_summary = "\n".join([
+                f"At {dates_raw[idx]} corresponding {a['dates']} and {a['location']}: {a['summaries']} (Action: {a['actions']}, Reason: {a['reasons']})"
+                for idx, a in enumerate(advisories)
+            ])
+        except:
+            import pdb; pdb.set_trace()
 
         prompt = f"""
             You are a helpful assistant. Summarize the following city-level weather advice into a friendly, readable response.
