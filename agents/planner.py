@@ -14,6 +14,7 @@ class PlannerOutput(BaseModel):
     dates: List[str]
     intent: str
     reasoning_type: str
+    is_direct_question: bool
     activity: Optional[str] = None
     constraints: Optional[List[str]] = None
 
@@ -48,6 +49,8 @@ def planner_node(llm):
                 - "constraint_reasoning"
                 - ou autre si nécessaire (à toi de figurer l'intitulé du reasoning_type)
 
+            - "is_direct_question" : If it is a direct question (yes or no question)
+
             Champs optionnels à inclure **si pertinents** :
 
             - "activity" : texte libre décrivant l’activité que l'utilisateur souhaite planifier (ex : "aller à la plage", "faire un pique-nique ou une rando")
@@ -80,6 +83,7 @@ def planner_node(llm):
                     "dates": entry["dates"],
                     "intent": entry["intent"],
                     "reasoning_type": entry["reasoning_type"],
+                    "is_direct_question": entry["is_direct_question"],
                     **({"activity": entry["activity"]} if "activity" in entry else {}),
                     **({"constraints": entry["constraints"]} if "constraints" in entry else {})
                 }
