@@ -6,10 +6,33 @@ def rewriter_node(llm):
     
         advisories = state.get("reasoning_result", [])
         dates_raw = [k.get("date_raw")for k in state.get("plannification", [])]
-        input_summary = "\n".join([
-            f"At {dates_raw[idx]} corresponding {a['dates']} and {a['location']}: {a['summaries']} (Action: {a['actions']}, Reason: {a['reasons']})"
-            for idx, a in enumerate(advisories)
-        ])
+
+        input_summary = ""
+
+        for idx, advisory in enumerate(advisories):
+            location = advisory["location"]
+            date_list = advisory["dates"]
+            summary = advisory["summaries"]
+            action = advisory["actions"]
+            reason = advisory["reasons"]
+            decision = advisory["decision"]
+
+            # Optional: fetch raw input dates if needed
+            raw_date = dates_raw[idx] if idx < len(dates_raw) else ", ".join(date_list)
+
+            if decision:
+                input_summary += (
+                    f"\n→ At {raw_date} ({location}):\n"
+                    f"  Answer: {decision} and {summary}  \n"
+                    f"  Reason: {reason}\n"
+                )
+            else:
+                input_summary += (
+                    f"\n→ At {raw_date} ({location}):\n"
+                    f"  Summary: {summary}\n"
+                    f"  Suggested Action: {action}\n"
+                    f"  Reason: {reason}\n"
+                )
 
         prompt = f"""
             You are a helpful assistant. Summarize the following city-level weather advice into a friendly, readable response.
