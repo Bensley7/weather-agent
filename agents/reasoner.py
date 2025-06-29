@@ -11,25 +11,29 @@ class CityAdvice(BaseModel):
     actions: str
     reasons: str
 
+class WeatherIntentData(BaseModel):
+    forecast: dict
+    plan: dict
 
 def reasoner_node(llm):
     def reasoner_fn(state):
         forecasts: List[dict] = state.get("forecasts", [])
         plans: List[dict] = state.get("plannification", [])
 
+        weather_intent_data = [
+            WeatherIntentData(forecast=forecast, plan=plan).dict()
+            for forecast, plan in zip(forecasts, plans)
+        ]
         prompt = f"""
         You are a weather reasoning assistant.
 
-        The user has made the following queries and intentions:
-        {json.dumps(plans, indent=2)}
-
-        You also have the following weather forecasts:
-        {json.dumps(forecasts, indent=2)}
+        The user has made the following queries, intentions, activities and constraints associated with weather related data:
+        {json.dumps(weather_intent_data, indent=2)}
 
         For each city, and for the dates mentioned in both the planner and forecast:
-        - Use the intent, activity and constraints to guide your reasoning.
+        - Use the intent, activity, reasoning_type and constraints to guide your reasoning.
         - Provide a high-level summary of the weather.
-        - Suggest appropriate actions.
+        - Suggest appropriate actions for example "Bring an umbrella and a warm coat." or "Highest temperature is 30C in Monday".
         - Explain why with evidence from the forecast.
 
         Output a JSON list in this format:
