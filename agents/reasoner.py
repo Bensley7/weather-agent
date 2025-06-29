@@ -46,6 +46,10 @@ def reasoner_node(llm):
                 "reasons": "80% chance of rain and max temp of 20°C according to forecast."
             }}
         ]
+
+        Note:
+        - For each city (location) we get one and only json element in the list
+
         """
 
         response = llm.invoke([HumanMessage(content=prompt)]).content
