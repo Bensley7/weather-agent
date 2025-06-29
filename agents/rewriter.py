@@ -3,10 +3,11 @@ from langchain.schema import HumanMessage
 
 def rewriter_node(llm):
     def rewriter_fn(state):
-        advisories = state.get("advisories", [])
-        dates_row = [k.get("date_raw")for k in state.get("plannification", [])]
+        advisories = state.get("reasoning_result", [])
+        print(advisories)
+        dates_raw = [k.get("date_raw")for k in state.get("plannification", [])]
         input_summary = "\n".join([
-            f"At {dates_row[idx]} corresponding {a['dates']} and {a['location']}: {a['summaries']} (Action: {a['actions']}, Reason: {a['reasons']})"
+            f"At {dates_raw[idx]} corresponding {a['dates']} and {a['location']}: {a['summaries']} (Action: {a['actions']}, Reason: {a['reasons']})"
             for idx, a in enumerate(advisories)
         ])
 

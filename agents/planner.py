@@ -28,7 +28,7 @@ def planner_node(llm):
             Ta tâche est d’identifier chaque association explicite ou implicite entre une ville et une ou plusieurs dates.
 
             Retourne une **liste JSON**, chaque élément représentant une **combinaison unique** entre :
-            - "location" :  la ville mentionnée
+            - "location" :  la ville mentionnée (si ce n'est pas mentionné prendre Paris.)
             - "date_raw" (texte de l’utilisateur, ex : "ce week-end", "demain")
             - "dates" (une ou plusieurs dates exactes au format AAAA-MM-JJ)
             - "intent" (voir ci-dessous)
@@ -41,7 +41,7 @@ def planner_node(llm):
             - ou autre si nécessaire (à toi de figurer l'intitulé de l'intent)
 
             - "reasoning_type" : type de raisonnement requis pour comprendre ou répondre, choisir parmi :
-                - "none"
+                - None
                 - "temporal_reasoning"
                 - "numerical_reasoning"
                 - "geographical_reasoning"
