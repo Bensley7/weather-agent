@@ -58,6 +58,7 @@ def planner_node(llm):
             - Si une expression temporelle couvre plusieurs jours (comme "ce week-end", "toute la semaine", "this week" -> la semaine où figure aujorud'hui), retourne **une liste de dates précises** dans `"dates"`.
             - Si plusieurs villes sont mentionnées, crée un objet par couple ville/date.
             - Formate le tout en JSON propre et compact.
+            - Si dates est vide, prendre par défaut les dates de la a semaine où figure aujorud'hui.
 
             Question : "{query}"
             Réponse :
