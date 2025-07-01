@@ -53,11 +53,15 @@ cd weather-agent
 ```
 
 ### 2. Create & activate your environment
+```bash
 conda create -n weather-agent python=3.10
 conda activate weather-agent
+```
 
+```bash
 ### 3. Install Python dependencies
 pip install -r requirements.txt
+```
 
 ### 4.  Setup your .env
 Create a .env file in the root directory:
