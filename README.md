@@ -22,6 +22,7 @@ A modular weather assistant powered by [LangGraph](https://github.com/langchain-
 
 ## 🧱 Project Structure
 
+```text
 weather-agent/
 ├── agents/
 │ ├── planner.py
