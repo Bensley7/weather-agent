@@ -39,3 +39,52 @@ weather-agent/
 ├── graph.py
 ├── requirements.txt
 └── README.md
+
+
+---
+
+## 🧪 Quickstart
+
+### 1. 🔧 Installation
+
+```bash
+git clone git@github.com:Bensley7/weather-agent.git
+cd weather-agent
+
+# Create & activate your environment
+conda create -n weather-agent python=3.10
+conda activate weather-agent
+
+# Install Python dependencies
+pip install -r requirements.txt
+
+### 2. 📁 Setup your .env
+Create a .env file in the root directory:
+
+OPENAI_API_KEY=your_openai_key
+DEFAULT_GUEST_EMAIL=you@example.com
+WEATHER_API_KEY_HISTORY="xxxxxxxxxxxxxxxxxxx"
+WEATHER_API_KEY_FORECAST="xxxxxxxxxxxxxxxxxxxx"
+WEATHER_DB_PATH="/tmp/weather_cache.db"
+
+### How to Get API Keys WEATHER_API_KEY_FORECAST
+
+Visit: https://www.weatherapi.com/
+
+Create a free account
+
+After verifying your email, go to My Account → API Keys
+
+Copy your API key and paste it in the .env file
+
+It can predict only 3 days including the present.
+
+### How to Get API Keys WEATHER_API_KEY_HISTORY
+
+Visit: https://www.worldweatheronline.com/developer/
+
+Register for a free or premium account
+
+After logging in, go to My Account → API Keys
+
+Copy your key and add it to the .env file
