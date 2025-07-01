@@ -15,6 +15,7 @@ class PlannerOutput(BaseModel):
     intent: str
     reasoning_type: str
     is_direct_question: bool
+    has_calendar_action: bool
     activity: Optional[str] = None
     constraints: Optional[List[str]] = None
 
@@ -50,16 +51,17 @@ def planner_node(llm):
                 - ou autre si nécessaire (à toi de figurer l'intitulé du reasoning_type)
 
             - "is_direct_question" : If it is a direct question (yes or no question)
+            - "has_calendar_action" : Return True If a booking action need to be done.
 
             Champs optionnels à inclure **si pertinents** :
 
             - "activity" : texte libre décrivant l’activité que l'utilisateur souhaite planifier (ex : "aller à la plage", "faire un pique-nique ou une rando")
-            - "constraints" : liste de contraintes exprimées ou implicites liées à la météo ou à l'activité (ex : ["éviter la pluie", "chercher le jour le plus chaud"])
+            - "constraints" : liste de contraintes exprimées ou implicites liées à la météo ou à l'activité (ex : ["éviter la pluie", "chercher le jour le plus chaud", "Booker un event à 12am"])
 
 
             Important :
             - Si une expression temporelle couvre plusieurs jours (comme "ce week-end", "toute la semaine", "this week" -> la semaine où figure aujorud'hui), retourne **une liste de dates précises** dans `"dates"`.
-            - Si plusieurs villes sont mentionnées, crée un objet par couple ville/date.
+            - Si plusieurs villes sont mentionnées, crée un objet par couple ville.
             - Formate le tout en JSON propre et compact.
             - Si dates est vide, prendre par défaut les dates de la a semaine où figure aujorud'hui.
 
@@ -84,6 +86,7 @@ def planner_node(llm):
                     "intent": entry["intent"],
                     "reasoning_type": entry["reasoning_type"],
                     "is_direct_question": entry["is_direct_question"],
+                    "has_calendar_action": entry["has_calendar_action"],
                     **({"activity": entry["activity"]} if "activity" in entry else {}),
                     **({"constraints": entry["constraints"]} if "constraints" in entry else {})
                 }
