@@ -39,7 +39,7 @@ weather-agent/
 ├── graph.py
 ├── requirements.txt
 └── README.md
-
+```
 
 ---
 
@@ -62,30 +62,32 @@ pip install -r requirements.txt
 ### 2. 📁 Setup your .env
 Create a .env file in the root directory:
 
+```text
 OPENAI_API_KEY=your_openai_key
 DEFAULT_GUEST_EMAIL=you@example.com
 WEATHER_API_KEY_HISTORY="xxxxxxxxxxxxxxxxxxx"
 WEATHER_API_KEY_FORECAST="xxxxxxxxxxxxxxxxxxxx"
 WEATHER_DB_PATH="/tmp/weather_cache.db"
+```
 
 ### How to Get API Keys WEATHER_API_KEY_FORECAST
 
-Visit: https://www.weatherapi.com/
+- Visit: https://www.weatherapi.com/
 
-Create a free account
+- Create a free account
 
-After verifying your email, go to My Account → API Keys
+- After verifying your email, go to My Account → API Keys
 
-Copy your API key and paste it in the .env file
+- Copy your API key and paste it in the .env file
 
-It can predict only 3 days including the present.
+- It can predict only 3 days including the present.
 
 ### How to Get API Keys WEATHER_API_KEY_HISTORY
 
-Visit: https://www.worldweatheronline.com/developer/
+- Visit: https://www.worldweatheronline.com/developer/
 
-Register for a free or premium account
+- Register for a free or premium account
 
-After logging in, go to My Account → API Keys
+- After logging in, go to My Account → API Keys
 
-Copy your key and add it to the .env file
+- Copy your key and add it to the .env file
