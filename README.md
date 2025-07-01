@@ -13,14 +13,14 @@ A modular weather assistant powered by [LangGraph](https://github.com/langchain-
   - Intent reasoning
   - Actionable advice
   - Optional calendar booking
-- 📅 Google Calendar integration (OAuth2)
-- 🧪 Supports testing mode with cached forecasts
-- 🔄 Handles vague, indirect, or multi-intent prompts
-- 🔐 Keeps credentials out of Git with `.env` support
+- Google Calendar integration (OAuth2)
+- Supports testing mode with cached forecasts
+- Handles vague, indirect, or multi-intent prompts
+- Keeps credentials out of Git with `.env` support
 
 ---
 
-## 🧱 Project Structure
+## Project Structure
 
 ```text
 weather-agent/
@@ -34,6 +34,7 @@ weather-agent/
 ├── utils/
 │ ├── google_calendar.py
 ├── tests/
+├── credentials/
 ├── .env
 ├── main.py
 ├── graph.py
