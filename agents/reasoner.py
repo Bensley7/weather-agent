@@ -27,58 +27,56 @@ def reasoner_node(llm):
             for forecast, plan in zip(forecasts, plans)
         ]
         prompt = f"""
-        You are a weather reasoning assistant.
+        Tu es un assistant de raisonnement météorologique.
 
-        The user has made the following weather-related queries, with associated intentions, activities, and constraints:
+        L'utilisateur a formulé des requêtes liées à la météo, accompagnées d'intentions(intents), d'activités et de contraintes :
 
-        Each item below contains:
-        - 'forecast': Weather forecast details for a specific city and dates.
-        - 'plan': The user's query analysis with fields like:
-            - 'intent': user’s intention (e.g. rain_check, temperature_check, activity_feasibility),
-            - 'reasoning_type': type of logic needed,
-            - 'is_direct_question': true if a yes/no answer is expected,
-            - 'has_calendar_action': true if the user expressed desire to book/schedule something — ⚠️ **you should set `has_calendar_action = true` in your output only if your generated action actually implies calendar usage (e.g. schedule, book)**.
-               following queries, intentions, activities and constraints associated with weather related data:
-                
-        Here is the reasoning input:
-        
+        Chaque élément contient :
+        - 'forecast' : détails des prévisions météo pour une ville et des dates spécifiques.
+        - 'plan' : analyse de la requête utilisateur avec les champs suivants :
+            - 'intent' : intention de l’utilisateur (ex. rain_check, temperature_check, activity_feasibility),
+            - 'reasoning_type' : type de raisonnement nécessaire,
+            - 'is_direct_question' : true si l’utilisateur attend une réponse oui/non,
+            - 'has_calendar_action' : true si l’utilisateur a exprimé un désir de planifier ou réserver quelque chose — ⚠️ **tu ne dois renvoyer `has_calendar_action = true` dans ta sortie que si ton action générée implique réellement l’usage d’un agenda ou calendrier (ex. planifier, réserver, programmer)**.
+
+        Voici les données d’entrée à interpréter :
+
         {json.dumps(weather_intent_data, indent=2)}
 
+        Pour chaque ville, et pour les dates présentes à la fois dans les prévisions (`forecast`) et l’analyse (`plan`) :
+        - Utilise l’intention, l’activité, le type de raisonnement et les contraintes pour guider ta réflexion.
+        - Génère la sortie structurée suivante pour chaque ville :
 
-        For each city, and for the dates present in both the forecast and the plan:
-        - Use the intent, activity, reasoning_type and constraints to guide your reasoning.
-        - Generate the following structured output for each location:
+        Champs attendus :
+        - "summaries" : résumé concis en langage naturel des conditions météo sur les jours sélectionnés.
+        - "decision" : si la requête est une question directe (`is_direct_question = true`), réponds clairement en t’appuyant sur la météo (ex : "Oui, il va pleuvoir", "Non, il fera beau"). Sinon, laisse vide.
+        - "actions" : suggère des actions pertinentes en lien avec l’intention et les prévisions (ex : "Prendre un manteau chaud", "Planifier une sortie plage à 10h").
+        - "reasons" : explique pourquoi ces actions ou décisions sont appropriées selon les prévisions météo.
+        - "has_calendar_action" :
+            - Retourne `true` **uniquement** si ton action suggérée implique d’ajouter un événement au calendrier (ex. “Planifier”, “Réserver”, “Prévoir à 10h”, “Ajouter à l’agenda”).
+            - Si le champ `"has_calendar_action": true` figure dans la requête initiale, cela signifie que l’utilisateur *envisage* une action, mais ne le retourne que si ton action générée le confirme.
+            - Sinon, retourne `false`.
 
-        Fields:
-        - "summaries": A concise natural-language summary of the weather condition over the selected days.
-        - "decision": If the plan includes a direct yes/no question (`is_direct_question = true`), answer it clearly using the forecast (e.g. "Yes, it will rain", "No, it will be sunny"). Otherwise leave it as an empty string.
-        - "actions": Suggest relevant user actions based on intent and forecast (e.g. "Bring a warm coat", "Schedule a beach day at 10am").
-        - "reasons": Explain why these actions or decisions are appropriate based on the forecast.
-        - "has_calendar_action": 
-            - Return `true` **only** if your suggested action implies that something should be added to a calendar (e.g. “Schedule”, “Book”, “Plan for 10am”, “Add to agenda”).
-            - If the original plan contains `"has_calendar_action": true`, it means the user *may* want to book something — but do not set `has_calendar_action = true` unless your **generated action** actually confirms it.
-            - Otherwise, return `false`.
-
-        Output format (one entry per location only):
+        Format de sortie (un élément unique par ville) :
         [
         {{
             "location": "Paris",
             "dates": ["2025-06-30", "2025-07-01"],
-            "summaries": "The hottest day will be Tuesday with 37.8°C.",
-            "actions": "Schedule your picnic at 10am on Tuesday.",
-            "reasons": "Tuesday has the highest temperature compared to Monday.",
+            "summaries": "La journée la plus chaude sera mardi avec 37.8°C.",
+            "actions": "Planifiez votre pique-nique mardi à 10h.",
+            "reasons": "Mardi est plus chaud que lundi.",
             "decision": "",
             "has_calendar_action": true
         }}
         ]
 
-        Note:
-        - For each city (location) we get one and only json element in the list
-        - If the reasoning_type is a constraint_reasoning type, focus on answering the intent based on constraints.
-        - if the intent is about activity_feasability, focus on activity in your reasoning.
-        - If there is a booking, we will by defaut book at 10 am if it is not assigned.
-
+        Remarques :
+        - Une seule entrée JSON par ville.
+        - Si le `reasoning_type` est de type `constraint_reasoning`, focalise-toi sur les contraintes exprimées pour répondre à l’intention(intent).
+        - Si l’intention (intent) est `activity_feasibility`, focalise-toi sur l’activité dans ton raisonnement.
+        - Si une réservation est suggérée, par défaut l’heure sera fixée à 10h si aucune heure précise n’est indiquée.
         """
+
 
         response = llm.invoke([HumanMessage(content=prompt)]).content
         cleaned_response = re.sub(r"^```(?:json)?\s*|\s*```$", "", response.strip(), flags=re.MULTILINE)

@@ -35,14 +35,14 @@ def rewriter_node(llm):
                 )
 
         prompt = f"""
-            You are a helpful assistant. Summarize the following city-level weather advice into a friendly, readable response.
-            Show the date when necessary, and show weather data if the intent is temperature check. Generally speacking don't show 
-            date as in 21 July 2025.
+            Tu es un assistant utile. Résume les conseils météo suivants, ville par ville, dans une réponse conviviale et facile à lire.
 
-            City summaries:
+            Affiche la date uniquement si cela est nécessaire, et indique les données météo lorsque l’intention concerne la température. De manière générale, n’affiche pas les dates sous la forme "21 juillet 2025".
+
+            Résumés par ville :
             {input_summary}
 
-            Respond to the user.
+            Réponds à l’utilisateur.
         """
 
         response = llm.invoke([HumanMessage(content=prompt)])
