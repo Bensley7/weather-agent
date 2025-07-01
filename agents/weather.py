@@ -18,8 +18,8 @@ class Forecast(BaseModel):
 
 load_dotenv()
 
-WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
-WEATHER_API_KEY_0 = os.getenv("WEATHER_API_KEY_0")
+WEATHER_API_KEY_HISTORY = os.getenv("WEATHER_API_KEY_HISTORY")
+WEATHER_API_KEY_FORECAST = os.getenv("WEATHER_API_KEY_FORECAST")
 DB_PATH = "weather_cache.db"
 
 
@@ -91,7 +91,7 @@ def weather_node():
                         continue
                     # 2. Fetch from API
                     if class_date != "past":
-                        url = f"http://api.weatherapi.com/v1/forecast.json?q={location}&key={WEATHER_API_KEY_0}&days=3"
+                        url = f"http://api.weatherapi.com/v1/forecast.json?q={location}&key={WEATHER_API_KEY_FORECAST}&days=3"
                         res = requests.get(url)
                         if res.status_code != 200:
                             raise ValueError(f"Weather API failed for {location}")
@@ -109,7 +109,7 @@ def weather_node():
                     else:
                         url = (
                             f"http://api.worldweatheronline.com/premium/v1/past-weather.ashx"
-                            f"?key={WEATHER_API_KEY}&q={location}&format=json&date={date}&enddate={date}&tp=24"
+                            f"?key={WEATHER_API_KEY_HISTORY}&q={location}&format=json&date={date}&enddate={date}&tp=24"
                         )
                         response = requests.get(url)
                         if response.status_code != 200:

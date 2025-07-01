@@ -79,3 +79,5 @@ tmp/
 .env
 credentials.json
 token.json
+credentials/credentials.json
+credentials/token.json
