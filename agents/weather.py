@@ -20,8 +20,8 @@ load_dotenv()
 
 WEATHER_API_KEY_HISTORY = os.getenv("WEATHER_API_KEY_HISTORY")
 WEATHER_API_KEY_FORECAST = os.getenv("WEATHER_API_KEY_FORECAST")
-DB_PATH = "weather_cache.db"
-
+DB_PATH = os.getenv("WEATHER_DB_PATH", "weather_cache.db")
+DB_PATH = os.path.abspath(DB_PATH)
 
 def classify_date(date_str: str) -> str:
     today = datetime.now().date()
@@ -35,6 +35,7 @@ def classify_date(date_str: str) -> str:
 
 # Setup DB if not exists
 def init_db():
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
     with sqlite3.connect(DB_PATH) as conn:
         conn.execute("""
         CREATE TABLE IF NOT EXISTS weather (
