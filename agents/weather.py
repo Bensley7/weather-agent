@@ -3,7 +3,6 @@ import os
 import sqlite3
 from dotenv import load_dotenv
 from datetime import datetime
-from dateparser import parse
 from pydantic import BaseModel
 from typing import List
 
