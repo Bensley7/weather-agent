@@ -100,9 +100,24 @@ Note that for the optional booking node, integrating an invitation to a calendar
 
 - Copy your key and add it to the .env file
 
+
+### 5.  Google Calendar Integration
+
+This agent supports event creation via the Google Calendar API.
+
+To enable it:
+
+- Create OAuth credentials from Google Cloud Console.
+
+- Enable the Calendar API.
+
+- Add your token to ```token.json``` in ```credentials``` repository or use the OAuth flow.
+
+- Ensure DEFAULT_GUEST_EMAIL is set in your .env.
+
 ### 5.  Run the assistant
 
-- Run
+- Run:
 
 ```bash
 uvicorn main:app  --port 9003 --reload
@@ -111,3 +126,5 @@ uvicorn main:app  --port 9003 --reload
 - Go to  http://127.0.0.1:9003/docs
 - Fill the query with the question
 - You can change the port and host
+
+
