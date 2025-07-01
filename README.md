@@ -65,7 +65,8 @@ pip install -r requirements.txt
 ```
 
 ### 4.  Setup your .env
-Create a .env file in the root directory:
+
+- Create a .env file in the root directory:
 
 ```text
 OPENAI_API_KEY=your_openai_key
@@ -74,6 +75,8 @@ WEATHER_API_KEY_HISTORY="xxxxxxxxxxxxxxxxxxx"
 WEATHER_API_KEY_FORECAST="xxxxxxxxxxxxxxxxxxxx"
 WEATHER_DB_PATH="/tmp/weather_cache.db"
 ```
+
+Note that for the optional booking node, integrating an invitation to a calendar needs an email. This email is accessible when a user register or access the web app. The ```DEFAULT_GUEST_EMAIL``` is a way to mock this process.
 
 #### How to Get API Keys WEATHER_API_KEY_FORECAST
 
@@ -96,3 +99,15 @@ WEATHER_DB_PATH="/tmp/weather_cache.db"
 - After logging in, go to My Account → API Keys
 
 - Copy your key and add it to the .env file
+
+### 5.  Run the assistant
+
+- Run
+
+```bash
+uvicorn main:app  --port 9003 --reload
+```
+
+- Go to  http://127.0.0.1:9003/docs
+- Fill the query with the question
+- You can change the port and host
