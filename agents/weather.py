@@ -16,8 +16,10 @@ class Forecast(BaseModel):
     temp_maxs: list[float]
     temperatures: list[float]
 
-WEATHER_API_KEY = "33b15628c3774643b7b233910252405"
-WEATHER_API_KEY_0 = "6539e567b4bf46c98eb173830252306"
+load_dotenv()
+
+WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
+WEATHER_API_KEY_0 = os.getenv("WEATHER_API_KEY_0")
 DB_PATH = "weather_cache.db"
 
 

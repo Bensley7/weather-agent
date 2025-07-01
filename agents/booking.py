@@ -33,7 +33,7 @@ class GoogleCalendarEvent(BaseModel):
 def booking_node(llm):
     def booking_fn(state):
         
-        print("📅 Booking node triggered")
+        print("Booking node triggered")
 
         def make_prompt(map_reasoning_result, guest_email=DEFAULT_GUEST_EMAIL):
 

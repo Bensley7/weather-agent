@@ -76,3 +76,6 @@ outputs/
 temp/
 tmp/
 
+.env
+credentials.json
+token.json
