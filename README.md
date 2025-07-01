@@ -50,6 +50,7 @@ weather-agent/
 ```bash
 git clone git@github.com:Bensley7/weather-agent.git
 cd weather-agent
+```
 
 # Create & activate your environment
 conda create -n weather-agent python=3.10
