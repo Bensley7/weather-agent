@@ -23,14 +23,20 @@ DB_PATH = os.getenv("WEATHER_DB_PATH", "weather_cache.db")
 DB_PATH = os.path.abspath(DB_PATH)
 
 def classify_date(date_str: str) -> str:
-    today = datetime.now().date()
-    date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
+    now = datetime.now()
+    today = now.date()
+    target_date_str = datetime.strptime(date_str, "%Y-%m-%d")
+    date_obj = target_date_str.date()
+    target_datetime = target_date_str.replace(
+        hour=now.hour, minute=now.minute, second=now.second, microsecond=0
+    )
+    target_epoch = int(target_datetime.timestamp())
     if date_obj < today:
-        return "past"
+        return "past", target_epoch
     elif date_obj == today:
-        return "today"
+        return "today", target_epoch
     else:
-        return "future"
+        return "future", target_epoch
 
 # Setup DB if not exists
 def init_db():
@@ -45,8 +51,8 @@ def init_db():
             temp_min REAL,
             temp_max REAL,
             temperature REAL,
-            retrieved_at TEXT,
-            PRIMARY KEY (location, date)
+            last_epoch INTEGER,
+            PRIMARY KEY (location, date, last_epoch)
         )""")
 
 init_db()
@@ -74,38 +80,51 @@ def weather_node():
             temperatures = []   
             dts = dates[idx]         
             for date in dts:
-                class_date = classify_date(date)
+                class_date, last_date_epoch = classify_date(date)
                 try:
                     # 1. Try cache
-                    with sqlite3.connect(DB_PATH) as conn:
-                        row = conn.execute(
-                            "SELECT condition, rain_prob, temp_min, temp_max, temperature FROM weather WHERE location = ? AND date = ?",
-                            (location, date)).fetchone()
-                    if row:
-                        conditions.append(row[0])
-                        rain_probs.append(row[1])
-                        temp_mins.append(row[2])
-                        temp_maxs.append(row[3])
-                        temperatures.append(row[4])
-                        print(f"[CACHE] Found cached result for {location} on {date}")
-                        continue
+                    if class_date != "today":
+                        with sqlite3.connect(DB_PATH) as conn:
+                            row = conn.execute("""
+                                SELECT condition, rain_prob, temp_min, temp_max, temperature, last_epoch
+                                FROM weather
+                                WHERE location = ? AND date = ?
+                                ORDER BY ABS(last_epoch - ?) ASC
+                                LIMIT 1
+                            """, (location, date, last_date_epoch)).fetchone()
+                        if row:
+                            conditions.append(row[0])
+                            rain_probs.append(row[1])
+                            temp_mins.append(row[2])
+                            temp_maxs.append(row[3])
+                            temperatures.append(row[4])
+                            print(f"[CACHE] Found cached result for {location} on {date}")
+                            continue
                     # 2. Fetch from API
                     if class_date != "past":
                         url = f"http://api.weatherapi.com/v1/forecast.json?q={location}&key={WEATHER_API_KEY_FORECAST}&days=3"
                         res = requests.get(url)
                         if res.status_code != 200:
                             raise ValueError(f"Weather API failed for {location}")
-
                         data = res.json()
                         forecast_day = next((f for f in data["forecast"]["forecastday"] if f["date"] == date), None)
                         if not forecast_day:
                             raise ValueError(f"No forecast for {date} in {location}")
-
-                        condition = forecast_day["day"]["condition"]["text"]
-                        rain_prob = forecast_day["day"].get("daily_chance_of_rain", 0)
-                        temp_min = forecast_day["day"]["mintemp_c"]
-                        temp_max = forecast_day["day"]["maxtemp_c"]
-                        temperature = (2*temp_max + temp_min) / 3
+                        if class_date == "today":
+                            current_data = data["current"]
+                            condition = current_data["condition"].get("text", None)
+                            rain_prob = current_data.get("precip_mm", 0) / 200
+                            temp_min = forecast_day["day"]["mintemp_c"]
+                            temp_max = forecast_day["day"]["maxtemp_c"]
+                            temperature = current_data["temp_c"]
+                            last_updated_epoch = int(current_data["last_updated_epoch"])
+                        else:    
+                            condition = forecast_day["day"]["condition"]["text"]
+                            rain_prob = forecast_day["day"].get("daily_chance_of_rain", 0)
+                            temp_min = forecast_day["day"]["mintemp_c"]
+                            temp_max = forecast_day["day"]["maxtemp_c"]
+                            temperature = (2*temp_max + temp_min) / 3
+                            last_updated_epoch = 0
                     else:
                         url = (
                             f"http://api.worldweatheronline.com/premium/v1/past-weather.ashx"
@@ -122,6 +141,7 @@ def weather_node():
                         temp_min = float(dt["mintempC"])
                         temp_max = float(dt["maxtempC"])
                         temperature = (2*temp_max + temp_min) / 3
+                        last_updated_epoch = 0
 
                     conditions.append(condition)
                     rain_probs.append(rain_prob)
@@ -132,9 +152,9 @@ def weather_node():
                     with sqlite3.connect(DB_PATH) as conn:
                         conn.execute("""
                             INSERT OR REPLACE INTO weather (
-                                location, date, condition, rain_prob, temp_min, temp_max, temperature, retrieved_at
+                                location, date, condition, rain_prob, temp_min, temp_max, temperature, last_epoch
                             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-                            (location, date, condition, rain_prob, temp_min, temp_max, temperature, datetime.now().isoformat()))
+                            (location, date, condition, rain_prob, temp_min, temp_max, temperature, last_updated_epoch))
                         print(f"[API] Fetched new result for {location} on {date}")
 
                 except Exception as e:

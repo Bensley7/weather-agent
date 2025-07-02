@@ -32,7 +32,14 @@ def reasoner_node(llm):
         L'utilisateur a formulé des requêtes liées à la météo, accompagnées d'intentions(intents), d'activités et de contraintes :
 
         Chaque élément contient :
-        - 'forecast' : détails des prévisions météo pour une ville et des dates spécifiques.
+        - 'forecast' : détails des prévisions météo pour une ville et des dates spécifiques:
+            - 'location' : la ville ou location demandé.
+            - 'dates': la liste spécifique des dates demandés.
+            - 'conditions': la liste des conditions météorologiques, condition par date.
+            - 'rain_probs': la liste de probabilités de pleuvoir, probabilité par date.
+            - 'temp_mins': la liste des températures minimales, température par date.
+            - temp_maxs: la liste des températures maximales, température par date.
+            - temperatures: Liste des température correspondant à l’horodatage le plus proche de l’heure actuelle, pour chaque date.
         - 'plan' : analyse de la requête utilisateur avec les champs suivants :
             - 'intent' : intention de l’utilisateur (ex. rain_check, temperature_check, activity_feasibility),
             - 'reasoning_type' : type de raisonnement nécessaire,
