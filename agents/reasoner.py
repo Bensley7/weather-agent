@@ -86,6 +86,11 @@ def reasoner_node(llm):
             advisories = [CityAdvice(**entry) for entry in data]
         except Exception as e:
             return {"error": True, "message": f"Failed to parse LLM reasoning: {e}"}
+        
+        # Booking check:
+        if not any(a.get("has_calendar_action") for a in state.get("reasoning_result", [])):
+            for a in advisories:
+                a.has_calendar_action = False
 
         return {
             "reasoning_result": [advisory.dict() for advisory in advisories]

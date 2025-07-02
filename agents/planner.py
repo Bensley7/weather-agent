@@ -13,6 +13,7 @@ class PlannerOutput(BaseModel):
     dates: List[str]
     intent: str
     reasoning_type: str
+    language: str
     is_direct_question: bool
     has_calendar_action: bool
     activity: Optional[str] = None
@@ -32,6 +33,7 @@ def planner_node(llm):
             - "location" :  la ville mentionnée (si ce n'est pas mentionné prendre Paris.)
             - "date_raw" (texte de l’utilisateur, ex : "ce week-end", "demain")
             - "dates" (une ou plusieurs dates exactes au format AAAA-MM-JJ)
+            - "language": language détecté de la requête (query) utilisateur
             - "intent" (voir ci-dessous)
 
             Les intents météo courantes sont :
@@ -85,6 +87,7 @@ def planner_node(llm):
                     "dates": entry["dates"],
                     "intent": entry["intent"],
                     "reasoning_type": entry["reasoning_type"],
+                    "language": entry["language"],
                     "is_direct_question": entry["is_direct_question"],
                     "has_calendar_action": entry["has_calendar_action"],
                     **({"activity": entry["activity"]} if "activity" in entry else {}),

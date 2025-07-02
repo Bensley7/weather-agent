@@ -5,6 +5,10 @@ def rewriter_node(llm):
     def rewriter_fn(state):
     
         advisories = state.get("reasoning_result", [])
+        language = "Français"
+        plannifications = state.get("plannification", [])
+        if (plannifications):
+            language = plannifications[0].get("language")
         dates_raw = [k.get("date_raw")for k in state.get("plannification", [])]
 
         input_summary = ""
@@ -40,9 +44,9 @@ def rewriter_node(llm):
             Affiche la date uniquement si cela est nécessaire, et indique les données météo lorsque l’intention concerne la température. De manière générale, n’affiche pas les dates sous la forme "21 juillet 2025".
 
             Résumés par ville :
-            {input_summary}
+            {input_summary} 
 
-            Réponds à l’utilisateur.
+            Réponds à l’utilisateur en {language}.
         """
 
         response = llm.invoke([HumanMessage(content=prompt)])
