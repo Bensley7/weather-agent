@@ -17,6 +17,7 @@ class WeatherAgentState(TypedDict, total=False):
     booking_events: list
     ai_writer_result: str
     error: bool
+    guest_email: str
 
 llm = ChatOpenAI(model="gpt-4o", temperature=0.3)
 
@@ -50,9 +51,14 @@ def build_weather_graph():
     return app
 
 
-def run_weather_agent_quick(user_input):
+def run_weather_agent_quick(user_input, guest_email=None):
     app = build_weather_graph()
-    inputs = {"messages": user_input}
+    inputs = {
+        "messages": user_input,
+    }
+    if guest_email:
+        inputs["guest_email"] = guest_email
+
     final_output = app.invoke(inputs)
 
     return {"final_answer": final_output["ai_writer_result"], "trace": final_output}

@@ -12,8 +12,6 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from utils.google_calendar import create_events
 
-DEFAULT_GUEST_EMAIL = os.getenv("DEFAULT_GUEST_EMAIL", "mde.benslimane@gmail.com")
-
 class EventDateTime(BaseModel):
     dateTime: str  # ISO 8601 string
     timeZone: str  # e.g., "Europe/Paris"
@@ -35,7 +33,7 @@ def booking_node(llm):
         
         print("Booking node triggered")
 
-        def make_prompt(map_reasoning_result, guest_email=DEFAULT_GUEST_EMAIL):
+        def make_prompt(map_reasoning_result, guest_email):
 
             reasoning_json = json.dumps(map_reasoning_result, indent=2)
             prompt = f"""
@@ -84,11 +82,12 @@ def booking_node(llm):
             return prompt
 
         advisories = state.get("reasoning_result", [])
+        guest_email = state.get("guest_email", "guest@example.com")
 
         bookings = []
         for a in advisories:
             if a.get("has_calendar_action"):
-                prompt = make_prompt(a)
+                prompt = make_prompt(a, guest_email)
                 raw_response = llm.invoke([HumanMessage(content=prompt)]).content
                 cleaned_response = ast.literal_eval(raw_response)
                 try:

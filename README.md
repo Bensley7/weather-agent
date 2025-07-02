@@ -71,7 +71,6 @@ pip install -r requirements.txt
 
 ```text
 OPENAI_API_KEY=your_openai_key
-DEFAULT_GUEST_EMAIL=you@example.com
 WEATHER_API_KEY_HISTORY="xxxxxxxxxxxxxxxxxxx"
 WEATHER_API_KEY_FORECAST="xxxxxxxxxxxxxxxxxxxx"
 WEATHER_DB_PATH="/tmp/weather_cache.db"
@@ -120,7 +119,6 @@ To enable it:
 
 - Add your token to ```token.json``` in ```credentials``` directory or use the OAuth flow.
 
-- Ensure DEFAULT_GUEST_EMAIL is set in your .env.
 
 ### 6.  Run the assistant
 
