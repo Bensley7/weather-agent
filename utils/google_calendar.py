@@ -1,14 +1,27 @@
 import os
 import datetime
+import base64
+import json
+
+from dotenv import load_dotenv
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 
+
 def get_calendar_service():
-    creds = None
+    os.makedirs("credentials", exist_ok=True)
     token_path = os.path.join("credentials", "token.json")
+    if not os.path.exists(token_path):
+        load_dotenv()
+        token_json_b64 = os.getenv("GOOGLE_TOKEN_JSON_B64")
+        if token_json_b64:
+            token_data = json.loads(base64.b64decode(token_json_b64))
+            with open(token_path, "w") as f:
+                json.dump(token_data, f)
+    creds = None
     credentials_path = os.path.join("credentials", "credentials.json")
     if os.path.exists(token_path):
         creds = Credentials.from_authorized_user_file(token_path, SCOPES)
